@@ -6,47 +6,41 @@ import (
 )
 
 func NoError(t testing.TB, err error) {
-	t.Helper()
-
 	if err != nil {
+		t.Helper()
 		t.Fatalf("%+v", err)
 	}
 }
 
 func Error(t testing.TB, err error) {
-	t.Helper()
-
 	if err == nil {
+		t.Helper()
 		t.Fatal("expected an error")
 	}
 }
 
 func Equal(t testing.TB, a, b interface{}) {
-	t.Helper()
-
 	if a != b && literalConvert(a) != literalConvert(b) {
+		t.Helper()
 		t.Fatalf("%#v != %#v", a, b)
 	}
 }
 
 func DeepEqual(t testing.TB, a, b interface{}) {
-	t.Helper()
-
 	if !reflect.DeepEqual(a, b) {
+		t.Helper()
 		t.Fatalf("%#v != %#v", a, b)
 	}
 }
 
 func That(t testing.TB, v bool) {
-	t.Helper()
-
 	if !v {
+		t.Helper()
 		t.Fatal("expected condition failed")
 	}
 }
 
 func Nil(t testing.TB, a interface{}) {
-	t.Helper()
 
 	if a == nil {
 		return
@@ -54,17 +48,18 @@ func Nil(t testing.TB, a interface{}) {
 
 	rv := reflect.ValueOf(a)
 	if !canNil(rv) {
+		t.Helper()
 		t.Fatalf("%#v cannot be nil", a)
 	}
 	if !rv.IsNil() {
+		t.Helper()
 		t.Fatalf("%#v != nil", a)
 	}
 }
 
 func NotNil(t testing.TB, a interface{}) {
-	t.Helper()
-
 	if a == nil {
+		t.Helper()
 		t.Fatal("expected not nil")
 	}
 
@@ -73,6 +68,7 @@ func NotNil(t testing.TB, a interface{}) {
 		return
 	}
 	if rv.IsNil() {
+		t.Helper()
 		t.Fatalf("%#v == nil", a)
 	}
 }
