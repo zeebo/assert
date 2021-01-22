@@ -1,6 +1,7 @@
 package assert
 
 import (
+	"bytes"
 	"reflect"
 	"testing"
 )
@@ -20,14 +21,24 @@ func Error(t testing.TB, err error) {
 }
 
 func Equal(t testing.TB, a, b interface{}) {
-	if a != b && literalConvert(a) != literalConvert(b) {
-		t.Helper()
-		t.Fatalf("%#v != %#v", a, b)
+	if ta, tb := reflect.TypeOf(a), reflect.TypeOf(b); ta != nil && tb != nil {
+		if ta.Comparable() && tb.Comparable() {
+			if a == b || literalConvert(a) == literalConvert(b) {
+				return
+			}
+		}
 	}
+
+	if deepEqual(a, b) {
+		return
+	}
+
+	t.Helper()
+	t.Fatalf("%#v != %#v", a, b)
 }
 
 func DeepEqual(t testing.TB, a, b interface{}) {
-	if !reflect.DeepEqual(a, b) {
+	if !deepEqual(a, b) {
 		t.Helper()
 		t.Fatalf("%#v != %#v", a, b)
 	}
@@ -40,8 +51,21 @@ func That(t testing.TB, v bool) {
 	}
 }
 
-func Nil(t testing.TB, a interface{}) {
+func True(t testing.TB, v bool) {
+	if !v {
+		t.Helper()
+		t.Fatal("expected condition failed")
+	}
+}
 
+func False(t testing.TB, v bool) {
+	if v {
+		t.Helper()
+		t.Fatal("expected condition failed")
+	}
+}
+
+func Nil(t testing.TB, a interface{}) {
 	if a == nil {
 		return
 	}
@@ -71,6 +95,15 @@ func NotNil(t testing.TB, a interface{}) {
 		t.Helper()
 		t.Fatalf("%#v == nil", a)
 	}
+}
+
+func deepEqual(a, b interface{}) bool {
+	ab, aok := a.([]byte)
+	bb, bok := b.([]byte)
+	if aok && bok {
+		return bytes.Equal(ab, bb)
+	}
+	return reflect.DeepEqual(a, b)
 }
 
 func canNil(rv reflect.Value) bool {
