@@ -37,6 +37,23 @@ func Equal(t testing.TB, a, b interface{}) {
 	t.Fatalf("%#v != %#v", a, b)
 }
 
+func NotEqual(t testing.TB, a, b interface{}) {
+	if ta, tb := reflect.TypeOf(a), reflect.TypeOf(b); ta != nil && tb != nil {
+		if ta.Comparable() && tb.Comparable() {
+			if !(a == b || literalConvert(a) == literalConvert(b)) {
+				return
+			}
+		}
+	}
+
+	if !deepEqual(a, b) {
+		return
+	}
+
+	t.Helper()
+	t.Fatalf("%#v == %#v", a, b)
+}
+
 func DeepEqual(t testing.TB, a, b interface{}) {
 	if !deepEqual(a, b) {
 		t.Helper()
